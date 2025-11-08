@@ -13,7 +13,13 @@ Built with **classical computer vision** (HSV + YCrCb skin fusion, convex hull, 
 
 ---
 
-## Demo
+## Command line arguments needed to run the code(s):
+
+python collec_data.py --label label_name --frames xx (eg: python collect_data.py --label play --frames 100)
+python train_data.py
+python benchmarking_resnet_18.py
+python resnet_18_verify.py
+python media_controller.py
 
 ---
 
@@ -26,7 +32,7 @@ Built with **classical computer vision** (HSV + YCrCb skin fusion, convex hull, 
 | **Adaptive Lighting** | Live HSV trackbars + YCrCb fusion |
 | **Real-Time** | <120ms end-to-end latency @ 25–30 FPS |
 | **Robust Segmentation** | Morphological cleaning + largest contour filtering |
-| **Lightweight Classifier** | SVM (RBF kernel) — 96.67% accuracy on ~200 samples/class |
+| **Lightweight Classifier** | SVM (RF kernel) — 96.67% accuracy on ~200 samples/class |
 
 ---
 
