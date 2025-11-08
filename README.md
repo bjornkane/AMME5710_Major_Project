@@ -9,8 +9,6 @@
 A **touchless media player controller** using **real-time hand gesture recognition** via a standard webcam.  
 No extra hardware. No physical contact. Just wave your hand to **play, pause, skip, or adjust volume**.
 
-Built with **classical computer vision** (HSV + YCrCb skin fusion, convex hull, SVM) — achieving **96.67% accuracy** and **<120ms latency** on CPU.
-
 ---
 
 ## Command line arguments needed to run the code(s):
