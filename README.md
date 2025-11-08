@@ -1,6 +1,4 @@
 # Real-Time Hand Gesture-Controlled Media Player  
-![Project Banner](figures/title_graphic.png)
-
 **Team M**  
 *Siwon Kang, Varunvarshan Sideshkumar, Arin Adurkar*
 
