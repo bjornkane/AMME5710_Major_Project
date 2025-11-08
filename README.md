@@ -15,11 +15,11 @@ Built with **classical computer vision** (HSV + YCrCb skin fusion, convex hull, 
 
 ## Command line arguments needed to run the code(s):
 
-python collec_data.py --label label_name --frames xx (eg: python collect_data.py --label play --frames 100)
-python train_data.py
-python benchmarking_resnet_18.py
-python resnet_18_verify.py
-python media_controller.py
+- python collec_data.py --label label_name --frames xx (eg: python collect_data.py --label play --frames 100)
+- python train_data.py
+- python benchmarking_resnet_18.py
+- python resnet_18_verify.py
+- python media_controller.py
 
 ---
 
