@@ -1,0 +1,12 @@
+class_counts_match=True
+acc_match=True
+cm_sum_ok=True
+topk_monotonic=True
+ece_ok=True
+onnx_ok=False
+checksums={
+  "best_resnet18.pt": "247976ac3161826685fa64d97f910199b160e0a5f556f7fb207b94637b23aae1",
+  "best_resnet18.onnx": "de6fb3ba12a54e5e2a06d403213199b8f52d1971ed4ebaee83681d828b26ce20",
+  "report.txt": "e40c496d53969e06d7fcb6c3e781abedf5c075e78f5f1582aa4dd4b359d56181",
+  "summary.json": "c954b05e18eebf764b7961cec8ca47453705f98b28a360a28305f5109b1b9d6e"
+}

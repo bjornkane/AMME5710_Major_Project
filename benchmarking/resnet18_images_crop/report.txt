@@ -1,0 +1,12 @@
+               precision    recall  f1-score   support
+
+     data_ccw     1.0000    1.0000    1.0000        17
+      data_cw     1.0000    1.0000    1.0000        19
+   data_pause     1.0000    1.0000    1.0000        10
+    data_play     1.0000    1.0000    1.0000        17
+data_vol_down     1.0000    1.0000    1.0000        15
+  data_vol_up     1.0000    1.0000    1.0000        12
+
+     accuracy                         1.0000        90
+    macro avg     1.0000    1.0000    1.0000        90
+ weighted avg     1.0000    1.0000    1.0000        90
