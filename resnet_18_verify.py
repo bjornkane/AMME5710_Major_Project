@@ -1,6 +1,9 @@
 # resnet_18_verify.py
 #
-# Student intent:
+# AMME5710 - Computer Vision and Image Processing - Major Project
+# Authors: Varunvarshan Sideshkumar, Arin Adurkar, Siwon Kang
+
+# Purpose of this code:
 #   Reload artifacts from benchmarking/resnet18_<view>/ and cross-verify:
 #     - test accuracy matches summary.json (within tolerance)
 #     - confusion matrix sums to #test samples
@@ -8,13 +11,6 @@
 #     - calibration ECE is in [0,1]
 #     - dataset_flat file counts match class_counts.json
 #     - optional ONNX parity: PyTorch vs ONNX logits "close"
-#
-# Usage:
-#   python resnet_18_verify.py
-#
-# Notes:
-#   - No CLI flags; edit CONFIG if your output folder name changes.
-#   - ONNX parity now adapts to the model's expected batch dimension.
 
 import json, random, hashlib
 from pathlib import Path
@@ -27,7 +23,7 @@ from torchvision import datasets, transforms, models
 from sklearn.metrics import confusion_matrix
 from sklearn.calibration import calibration_curve
 
-# ---------------- CONFIG (edit if needed) ----------------
+# Configuration
 CONFIG = dict(
     VIEW_DIR="resnet18_images_crop",  # folder inside benchmarking/
     IMG_SIZE=224,
@@ -35,10 +31,9 @@ CONFIG = dict(
     SEED=42,
     NUM_WORKERS=0,                    # Windows-safe default
 )
-# ---------------------------------------------------------
 
 
-# ---------- small helpers ----------
+# helpers
 def set_seed(s=42):
     random.seed(s); np.random.seed(s)
     torch.manual_seed(s); torch.cuda.manual_seed_all(s)
@@ -125,23 +120,23 @@ def try_onnx_parity(onnx_path: Path, pt_model: nn.Module, img_size=224, device="
     try:
         import onnxruntime as ort
     except Exception:
-        return False, "onnxruntime not installed — skipping ONNX parity."
+        return False, "onnxruntime not installed -> skipping ONNX parity."
 
     if not onnx_path.exists():
-        return False, "ONNX file not found — skipping ONNX parity."
+        return False, "ONNX file not found -> skipping ONNX parity."
 
     sess = ort.InferenceSession(str(onnx_path), providers=["CPUExecutionProvider"])
     inp = sess.get_inputs()[0]
     inp_name = inp.name
     # decide batch size to feed:
-    # - if first dim is an int and ==1 → feed 1
-    # - if None/dynamic → feed 4 for a stronger check
+    # - if first dim is an int and ==1 -> feed 1
+    # - if None/dynamic -> feed 4 for a stronger check
     # - else fallback to 1 for safety
     batch_dim = inp.shape[0]
     if isinstance(batch_dim, int):
-        B = max(1, min(1, batch_dim))  # if 1 → 1; if other int → keep 1 for safety
+        B = max(1, min(1, batch_dim))  # if 1 -> 1; if other int -> keep 1 for safety
     else:
-        B = 4  # dynamic axes → can test >1
+        B = 4  # dynamic axes -> can test >1
 
     dummy = torch.randn(B, 3, img_size, img_size, device=device)
     with torch.no_grad():
@@ -225,7 +220,7 @@ def main():
     cm_sum_ok = (cm.sum() == len(te_targets))
     print(f"[check] confusion matrix sum OK: {cm_sum_ok} ({cm.sum()} vs {len(te_targets)})")
 
-    # top-k monotonicity (k=1..min(5,C))
+    # top-k monotonicity (k=5)
     ks = list(range(1, min(5, n_classes) + 1))
     accs = []
     for k in ks:

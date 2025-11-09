@@ -11,13 +11,15 @@ No extra hardware. No physical contact. Just wave your hand to **play, pause, sk
 
 ---
 
-## Command line arguments needed to run the code(s):
+## Source Files and Responsibilities
 
-- python collec_data.py --label label_name --frames xx (eg: python collect_data.py --label play --frames 100)
-- python train_data.py
-- python benchmarking_resnet_18.py
-- python resnet_18_verify.py
-- python media_controller.py
+| File | Description |
+|------|--------------|
+| **collect_data.py** | Real-time data collector; builds HSV and YCrCb masks, optionally applies MediaPipe ROI gating, fuses masks, extracts geometric and motion features, saves raw/mask/crop/overlay images, and logs CSVs. |
+| **train_data.py** | Handles classical training and selection; standardizes numeric features, trains SVM/KNN/DecisionTree/RandomForest classifiers with stratified k-fold validation, and saves trained artifacts: `gesture_scaler.pkl`, `gesture_model.pkl`, `label_map.npy`, and `feature_names.npy`. |
+| **media_controller.py** | Runtime gesture controller; reproduces mask fusion pipeline, isolates the main hand blob, detects convexity defects and fingertip trails, computes rotation direction (CW/CCW), and triggers media key events through stable-episode logic. |
+| **benchmarking_resnet_18.py** | Deep-learning baseline; prepares datasets with `ImageFolder`, performs deterministic train/val/test splits, fine-tunes a ResNet-18 model, reports metrics, and exports ONNX models for deployment. |
+| **resnet_18_verify.py** | Artifact verification; reloads weights and data, recomputes classification metrics, performs sanity checks, and validates PyTorch vs ONNX inference parity. |
 
 ---
 
@@ -34,7 +36,25 @@ No extra hardware. No physical contact. Just wave your hand to **play, pause, sk
 
 ---
 
-## Installation
+## Command line arguments needed to run the code(s):
+
+
+```bash
+# 1. Collect gesture samples (saves images + CSVs)
+python collect_data.py --label play --frames 100
+
+# 2. Train classical models (SVM, KNN, DT, RF)
+python train_data.py
+
+# 3. Benchmark ResNet-18 deep model
+python benchmarking_resnet_18.py
+
+# 4. Verify ONNX export and parity
+python resnet_18_verify.py
+
+# 5. Run real-time media controller
+python media_controller.py
+
 
 ### Requirements
 - Python 3.8+

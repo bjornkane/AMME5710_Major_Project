@@ -7,6 +7,6 @@ onnx_ok=False
 checksums={
   "best_resnet18.pt": "247976ac3161826685fa64d97f910199b160e0a5f556f7fb207b94637b23aae1",
   "best_resnet18.onnx": "de6fb3ba12a54e5e2a06d403213199b8f52d1971ed4ebaee83681d828b26ce20",
-  "report.txt": "e40c496d53969e06d7fcb6c3e781abedf5c075e78f5f1582aa4dd4b359d56181",
-  "summary.json": "c954b05e18eebf764b7961cec8ca47453705f98b28a360a28305f5109b1b9d6e"
+  "report.txt": "2e76b51db015cbfd955d7efeaeb7399bd84650b99a2d9ec8c36850e8caa9a7a0",
+  "summary.json": "c4e87aff8cf7a159d14a528cb66c91f1c0d2944414fa43d976eea08205e75da1"
 }

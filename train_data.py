@@ -1,7 +1,10 @@
 # train_data.py
 #
-# Student goals:
-#   1) Load gestures CSV → X=numeric, y='label'.
+# AMME5710 - Computer Vision and Image Processing - Major Project
+# Authors: Varunvarshan Sideshkumar, Arin Adurkar, Siwon Kang
+
+# Purpose of this code:
+#   1) Load gestures CSV -> X=numeric, y='label'.
 #   2) 80/20 stratified split, 5-fold CV on train.
 #   3) Train SVM/KNN/DT/RF, pick winner by average of (CV F1_macro, Test F1_macro).
 #   4) Save best model, scaler, label map, feature order, metrics table.
@@ -14,9 +17,7 @@
 #        - PCA 2-D scatter on test split (dataset-level)
 #        - learning curve for best model
 #        - feature importance (model-based or permutation) for best model
-#
-# Usage:
-#   python train_data.py
+
 
 import numpy as np
 import pandas as pd
@@ -248,12 +249,12 @@ def evaluate_models(Xs, y, le):
             normalize=True
         )
 
-        # probabilistic curves if available
+        # probabilistic curves 
         prob_ok = hasattr(model, "predict_proba")
         if prob_ok:
             prob_mat = model.predict_proba(X_test)
         else:
-            # fallback: pseudo-prob from decision_function if present
+
             if hasattr(model, "decision_function"):
                 df = model.decision_function(X_test)
                 # min-max normalize per row
@@ -385,7 +386,7 @@ def train_and_evaluate():
     print(f"[save] metrics -> {OUT_CSV}")
     print(f"Best Model: {best_name}")
 
-    # learning curve + feature importance for the winner
+    # learning curve + feature importance for the final chosen model
     BEST_DIR.mkdir(parents=True, exist_ok=True)
     plot_learning_curve(best_model, X_train, y_train, f"{best_name} learning curve (F1_macro)", BEST_DIR / "learning_curve.png")
     plot_feature_importance(

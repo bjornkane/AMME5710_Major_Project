@@ -1,22 +1,8 @@
-# benchmark_from_dataset_resnet18.py
-#
-# Student roadmap (what/why):
-#   1) Pack "dataset/<class>/<view>/*" into ImageFolder at "benchmarking/dataset_flat/<class>/*".
-#   2) Split into train/val/test; fine-tune ResNet-18 (ImageNet init).
-#   3) Save best weights + ONNX + text/JSON reports.
-#   4) Extra benchmarks: norm CM, PR/ROC, calibration (ECE), top-K, class support,
-#      misclassification gallery, t-SNE of penultimate features.
-#   5) No CLI flags — everything in CONFIG.
-#
-# How to run:
-#   python benchmark_from_dataset_resnet18.py
-#
-# Expected input layout:
-#   dataset/
-#     open_palm/    {images_crop|images_raw|masks|overlays}/*.jpg
-#     closed_fist/  {images_crop|images_raw|masks|overlays}/*.jpg
-#
-# Outputs (under "benchmarking/resnet18_<VIEW>/"): weights, ONNX, plots, reports.
+# 
+# AMME5710 - Computer Vision and Image Processing - Major Project
+# Authors: Varunvarshan Sideshkumar, Arin Adurkar, Siwon Kang
+# Purpose of this code: ImageFolder packing, deterministic train/val/test,
+#                       ResNet-18 fine-tune, reports and ONNX export
 
 import os, json, random, shutil
 from pathlib import Path
@@ -45,9 +31,9 @@ from sklearn.metrics import (
 from sklearn.calibration import calibration_curve
 from sklearn.manifold import TSNE
 
-# ============================ CONFIG (edit here) ============================
+# Configuration
 CONFIG = dict(
-    SRC_ROOT="data",          # where class folders live (relative to this .py)
+    SRC_ROOT="data",             # where class folders live (relative to this .py)
     VIEW="images_crop",          # "images_crop" | "images_raw" | "masks" | "overlays"
     IMG_SIZE=224,                # ResNet-18 default side
     EPOCHS=20,                   # bump if needed
@@ -61,10 +47,9 @@ CONFIG = dict(
     NUM_WORKERS=0,               # Windows-friendly default; raise if your env supports it
     MISCLS_MAX=24,               # max images in misclassification gallery
 )
-# ===========================================================================
 
 
-# ---------- basic utilities ----------
+# Basic utilities
 def set_seed(s=42):
     random.seed(s)
     np.random.seed(s)
@@ -92,11 +77,11 @@ def copy_or_link(src: Path, dst: Path, mode: str):
         shutil.copy2(src, dst)
 
 
-# ---------- dataset packer (ImageFolder builder) ----------
+# dataset packer (ImageFolder builder)
 def build_imagefolder_from_dataset(src_root: Path, dst_root: Path, view: str, mode="copy"):
     """
     For each class folder, choose the requested 'view'. If missing, fall back:
-      prefer images_crop → fallback images_raw (or vice versa if VIEW == images_crop).
+      prefer images_crop -> fallback images_raw (or vice versa if VIEW == images_crop).
     """
     safe_mkdir(dst_root)
     class_counts = {}
@@ -137,7 +122,7 @@ def build_imagefolder_from_dataset(src_root: Path, dst_root: Path, view: str, mo
     return classes, class_counts
 
 
-# ---------- plotting helpers ----------
+# plotting helpers
 def plot_confusion(cm, class_names, out_png, normalize=False):
     cm_plot = cm.astype(np.float32)
     if normalize and cm.sum(axis=1).min() > 0:
@@ -356,7 +341,7 @@ def plot_loss_acc(history, out_png):
     plt.close(fig)
 
 
-# ---------- dataloaders + model ----------
+# dataloaders + model
 def get_loaders(
     data_root,
     img_size=224,
@@ -441,7 +426,7 @@ def run_epoch(model, dl, criterion, optimizer=None, device="cuda"):
     return avg_loss, acc, logits_cat, targets_cat
 
 
-# ---------- training script ----------
+# training script
 def main():
     # deterministic setup
     set_seed(CONFIG["SEED"])
@@ -457,9 +442,9 @@ def main():
     safe_mkdir(ds_root)
     safe_mkdir(out_dir)
 
-    # early guard: source root must exist and contain at least one class dir
+    # root directory fail safe
     if not src_root.exists():
-        # create a scaffold to guide the student, then exit gracefully
+        # create a scaffold, then exit 
         (src_root / "open_palm" / CONFIG["VIEW"]).mkdir(parents=True, exist_ok=True)
         (src_root / "closed_fist" / CONFIG["VIEW"]).mkdir(parents=True, exist_ok=True)
         msg = (
@@ -484,7 +469,7 @@ def main():
     with open(out_dir / "class_counts.json", "w", encoding="utf-8") as f:
         json.dump(class_counts, f, indent=2)
 
-    # 2) dataloaders + dataset handles (keep subsets for galleries)
+    # 2) dataloaders + dataset handles
     train_dl, val_dl, test_dl, class_names, train_ds, val_ds, test_ds = get_loaders(
         ds_root,
         img_size=CONFIG["IMG_SIZE"],

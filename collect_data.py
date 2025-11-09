@@ -1,5 +1,8 @@
 # collect_data.py
-# Purpose:
+# 
+# AMME5710 - Computer Vision and Image Processing - Major Project
+# Authors: Varunvarshan Sideshkumar, Arin Adurkar, Siwon Kang
+# Purpose of this code:
 #   - Collect exactly N training samples per run for a single label.
 #   - Save raw frames, hand-only masks, cropped ROIs, and overlay images.
 #   - Log geometric features + simple radians-based rotation features to CSV.
@@ -17,7 +20,7 @@ from typing import List, Tuple
 import cv2
 import numpy as np
 
-# ------------------------------ fixed camera / UI config ------------------------------
+# Camera / UI config
 CAM_INDEX     = 0
 FRAME_W       = 960
 FRAME_H       = 540
@@ -30,7 +33,7 @@ TRAIL_DECAY   = 0.92                  # fade for motion trail buffer
 TRAIL_THICK   = 3
 TRAIL_MIN_NRM = 0.002                 # min normalized motion to draw a trail segment
 
-# ------------------------------ radians (cw/ccw) config ------------------------------
+# radians (cw/ccw) config
 RAD_PIVOT_ALPHA   = 0.15              # EMA for pivot center
 RAD_MIN_RADIUS_N  = 0.06              # min radius as a fraction of image diagonal
 RAD_DTH_SMOOTH    = 0.35              # EMA smoothing for dtheta
@@ -38,7 +41,7 @@ RAD_ACCUM_DECAY   = 0.95              # decay for angle accumulator
 RAD_VOTE_THRESH   = 0.20              # |accumulated angle| to vote cw/ccw
 RAD_TEXT_Y        = 84                # HUD baseline for radians text
 
-# ------------------------------ color thresholds + kernels ------------------------------
+# colour thresholds + kernels
 HSV1_LO = np.array([  0,  25,  45], np.uint8)
 HSV1_HI = np.array([ 25, 255, 255], np.uint8)
 HSV2_LO = np.array([170,  20,  45], np.uint8)
@@ -54,16 +57,16 @@ LABEL_THICK      = 1
 TUNE_WIN = "Tune HSV/YCrCb"
 GRID_WIN = "layout: [RAW | HSV | YCrCb] / [FINAL | FEED+PRIOR | RAW⊙TRAIL]"
 
-# ------------------------------ CLI ------------------------------
+# CLI
 def parse_args():
     ap = argparse.ArgumentParser()
     ap.add_argument("--label",  type=str, required=True)  # class name for this run
     ap.add_argument("--frames", type=int, required=True)  # number of samples to save
     return ap.parse_args()
 
-# ------------------------------ I/O setup ------------------------------
+# I/O setup
 def ensure_paths(label: str):
-    # per-label folders for this collection
+    # per label folders for this collection
     root = Path("data") / f"data_{label}"
     (root / "images_raw").mkdir(parents=True, exist_ok=True)
     (root / "images_crop").mkdir(parents=True, exist_ok=True)
@@ -87,7 +90,7 @@ def ensure_paths(label: str):
         ])
     return root, fh, wr
 
-# ------------------------------ small drawing helpers ------------------------------
+# small drawing helpers
 def put_kv(img, x, y, text):
     cv2.putText(img, text, (x, y), cv2.FONT_HERSHEY_SIMPLEX,
                 LABEL_FONT_SCALE, (40, 255, 40), LABEL_THICK, cv2.LINE_AA)
@@ -114,7 +117,7 @@ def tile2x3(a,b,c,d,e,f, cell_h=CELL_H, pad=6, bg=(20,20,20)):
         y += cell_h + pad
     return canvas
 
-# ------------------------------ color preprocessing ------------------------------
+# colour preprocessing
 def gray_world_wb(bgr):
     # simple gray-world white balance
     b,g,r = cv2.split(bgr.astype(np.float32))
@@ -164,7 +167,7 @@ def build_masks(raw_bgr):
     m_y  = apply_vertical_gate(m_y)
     return m_h, m_y
 
-# ------------------------------ simple mask scoring + fusion ------------------------------
+# simple mask scoring + fusion
 def largest_blob(m, min_area=2000, max_frac=0.6, shape=None):
     # return largest contour under simple area limits
     h,w = m.shape[:2]; max_area = (h*w if shape is None else shape[0]*shape[1])*max_frac
@@ -215,14 +218,14 @@ def select_hand_like(m, shape):
         if a < 2000 or a > 0.18*h*w: continue
         hull = cv2.convexHull(c); s = a/max(cv2.contourArea(hull),1e-6)
         p = max(cv2.arcLength(c,True),1e-6); circ = (4.0*np.pi*a)/(p*p)
-        if circ > 0.88: continue  # too round → likely noise
+        if circ > 0.88: continue  # too round -> likely noise
         x,y,bw,bh = cv2.boundingRect(c); extent = a/max(1,bw*bh)
         score = (a/(h*w))**0.9 * s**0.6 * (1.0-circ)**1.2 * extent**0.4
         if score > best_score: best, best_score = c, score
     return best
 
 def safe_convexity_defects(cnt):
-    # convexity defects can fail if hull/contour is degenerate → try approx
+    # convexity defects can fail if hull/contour is degenerate -> try approx
     if cnt is None or len(cnt)<3: return None, None
     c = cnt.astype(np.int32)
     def try_def(c0):
@@ -260,7 +263,7 @@ def gesture_from_cnt(cnt):
     return (mapping.get(fingers,"Open Hand" if fingers>=5 else "Unknown"),
             fingers if fingers<=4 else 5)
 
-# ------------------------------ optional MediaPipe prior (for gating) ------------------------------
+# MediaPipe prior (for gating)
 class MPPrior:
     # tries to get rough hand boxes / polygons to gate masks
     def __init__(self):
@@ -312,7 +315,7 @@ def draw_boxes(img, dets, color=(255,200,0)):
                     cv2.FONT_HERSHEY_SIMPLEX,0.5,color,2,cv2.LINE_AA)
     return o
 
-# ------------------------------ radians helpers ------------------------------
+# radians helpers
 def unwrap(prev, cur):
     # map angle difference into (-pi, pi]
     d = cur - prev
@@ -322,7 +325,7 @@ def unwrap(prev, cur):
 
 def diag_len(w, h): return math.hypot(w, h)
 
-# ------------------------------ main loop ------------------------------
+# main loop
 def main():
     args = parse_args()
     label = args.label
@@ -412,7 +415,7 @@ def main():
                 if np.hypot(x1-x0,y1-y0)/diag_len(W,H) >= TRAIL_MIN_NRM:
                     cv2.line(trail_canvas,(int(x0),int(y0)),(int(x1),int(y1)),255,TRAIL_THICK)
 
-            # ---------------- radians CW/CCW estimation ----------------
+            # radians CW/CCW estimation
             theta_rad = 0.0
             dtheta_rad = 0.0
             rot_dir = 0  # -1=cw, +1=ccw
@@ -428,7 +431,7 @@ def main():
                 vx, vy = cx - px, cy - py
                 r = math.hypot(vx, vy)
                 if r >= RAD_MIN_RADIUS_N * diag_len(W,H):
-                    # image coordinates: y grows downward → atan2(vy, vx)
+                    # image coordinates: y grows downward -> atan2(vy, vx)
                     theta_rad = math.atan2(vy, vx)
                     if theta_prev is None:
                         theta_prev = theta_rad
@@ -452,7 +455,7 @@ def main():
                 theta_accum *= RAD_ACCUM_DECAY
                 theta_prev = None
 
-            # ---------------- viewer panels ----------------
+            # viewer panels
             p0 = frame.copy(); put_kv(p0,10,20,"RAW")
             p1 = cv2.cvtColor(m_hsv, cv2.COLOR_GRAY2BGR); put_kv(p1,10,20,"HSV mask")
             p2 = cv2.cvtColor(m_ycc, cv2.COLOR_GRAY2BGR); put_kv(p2,10,20,"YCrCb mask")
@@ -483,7 +486,7 @@ def main():
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0,255,0), 2)
             cv2.imshow(GRID_WIN, grid)
 
-            # ---------------- saving one sample per iteration (when contour is valid) ----------------
+            # saving one sample per iteration (when contour is valid)
             if cnt is not None and saved < frames_target:
                 ts = round(time.time(),3)
                 img_id = f"{int(ts*1000)}_{saved:06d}"

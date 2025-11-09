@@ -1,7 +1,11 @@
 # media_controller.py
-# Goal:
+# 
+# AMME5710 - Computer Vision and Image Processing - Major Project
+# Authors: Varunvarshan Sideshkumar, Arin Adurkar, Siwon Kang
+
+# Purpose of this code:
 #   - Live gesture control for media keys.
-#   - Uses HSV∨YCrCb masks and optional MediaPipe to focus ROI.
+#   - Uses HSV and YCrCb masks and optional MediaPipe to focus ROI.
 #   - Tracks centroid trail and radians-based rotation (cw/ccw).
 #   - Consumes features: theta_rad, dtheta_rad, theta_accum_rad, rot_dir.
 
@@ -13,7 +17,7 @@ import cv2
 import joblib
 import pyautogui
 
-# Try MediaPipe for dynamic hand ROI (auto if available)
+# MediaPipe for dynamic hand ROI
 MP_OK = True
 try:
     import mediapipe as mp
