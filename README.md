@@ -20,8 +20,6 @@ No extra hardware. No physical contact. Just wave your hand to **play, pause, sk
 | **media_controller.py** | Runtime gesture controller; reproduces mask fusion pipeline, isolates the main hand blob, detects convexity defects and fingertip trails, computes rotation direction (CW/CCW), and triggers media key events through stable-episode logic. |
 | **benchmarking_resnet_18.py** | Deep-learning baseline; prepares datasets with `ImageFolder`, performs deterministic train/val/test splits, fine-tunes a ResNet-18 model, reports metrics, and exports ONNX models for deployment. |
 | **resnet_18_verify.py** | Artifact verification; reloads weights and data, recomputes classification metrics, performs sanity checks, and validates PyTorch vs ONNX inference parity. |
- 
----
 
 ---
 
