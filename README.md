@@ -25,11 +25,22 @@ No extra hardware. No physical contact. Just wave your hand to **play, pause, sk
 
 ## Command line arguments needed to run the code(s):
 
-- python collec_data.py --label label_name --frames xx (eg: python collect_data.py --label play --frames 100)
-- python train_data.py
-- python benchmarking_resnet_18.py
-- python resnet_18_verify.py
-- python media_controller.py
+
+```bash
+# 1. Collect gesture samples (saves images + CSVs)
+python collect_data.py --label play --frames 100
+
+# 2. Train classical models (SVM, KNN, DT, RF)
+python train_data.py
+
+# 3. Benchmark ResNet-18 deep model
+python benchmarking_resnet_18.py
+
+# 4. Verify ONNX export and parity
+python resnet_18_verify.py
+
+# 5. Run real-time media controller
+python media_controller.py
 
 ---
 
