@@ -1,5 +1,5 @@
-# collect_data.py
-# 
+
+
 # AMME5710 - Computer Vision and Image Processing - Major Project
 # Authors: Varunvarshan Sideshkumar, Arin Adurkar, Siwon Kang
 # Purpose of this code:
@@ -9,9 +9,7 @@
 #   - Show a compact 2x3 viewer:
 #       [ RAW | HSV mask | YCrCb mask ]
 #       [ FINAL hand-only | FEED + Contour | RAW + TRAIL ]
-#
-# Usage:
-#   python collect_data.py --label vol_up --frames 100
+
 
 import argparse, os, csv, time, math
 from collections import deque

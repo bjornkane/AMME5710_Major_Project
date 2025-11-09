@@ -1,5 +1,4 @@
-# train_data.py
-#
+
 # AMME5710 - Computer Vision and Image Processing - Major Project
 # Authors: Varunvarshan Sideshkumar, Arin Adurkar, Siwon Kang
 
